@@ -1,9 +1,15 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform, Dimensions } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { HStack } from '@/components/ui/hstack';
+import { Box } from '@/components/ui/box';
+import { Ionicons } from '@expo/vector-icons';
+import { Text } from '@/components/ui/text';
+
+const windowDimensions = Dimensions.get('window');
 
 export default function HomeScreen() {
   return (
@@ -16,36 +22,19 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+        <ThemedText type="title">¡Bienvenido!</ThemedText>
         <HelloWave />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+      <HStack space="2xl">
+        <Box className="shadow-md rounded-xl bg-lime-200 p-2 justify-between" style={styles.boxContainer}>
+          <Ionicons size={20} name="reader"/>
+          <Text bold={true}>Agregar nueva cotización</Text>
+        </Box>
+        <Box className="shadow-md rounded-xl bg-lime-200 p-2 justify-between" style={styles.boxContainer}>
+          <Ionicons size={20} name="receipt"/>
+          <Text bold={true}>Agregar nueva factura</Text>
+        </Box>
+      </HStack>
     </ParallaxScrollView>
   );
 }
@@ -67,4 +56,8 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
   },
+  boxContainer: {
+    width: windowDimensions.width*0.38,
+    height: windowDimensions.height*0.12,
+  }
 });
