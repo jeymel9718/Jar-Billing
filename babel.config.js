@@ -11,6 +11,7 @@ module.exports = function (api) {
       alias: {
         "@": "./"
       }
-    }]]
+    }],
+    'react-native-paper/babel']
   };
 };

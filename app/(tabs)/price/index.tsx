@@ -5,8 +5,9 @@ import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, useColorScheme } from "react-native";
 import { FlatList } from "react-native";
+import { FAB } from "react-native-paper";
 
 const DATA = [
   {
@@ -33,23 +34,20 @@ const DATA = [
 ];
 
 export default function ListPriceScreen() {
+  const theme = useColorScheme() ?? 'light';
   return (
     <ThemedView style={styles.container}>
-      <HStack className="justify-between items-center">
-        <Heading bold size="2xl">
-          Cotizaciones
-        </Heading>
-        <Ionicons size={24} name="search" />
-      </HStack>
       <FlatList
         data={DATA}
-        renderItem={({ item }) => <ListItem {...item} />}
+        renderItem={({ item }) => <ListItem {...item} colorScheme={theme} />}
         keyExtractor={(item) => item.id}
       />
       <Link asChild href="/price/new">
-        <Pressable style={styles.fabAdd}>
-          <Ionicons name="add" size={47} color="white" />
-        </Pressable>
+        <FAB
+          icon={'plus'}
+          style={styles.fabAdd}
+          size='medium'
+        />
       </Link>
     </ThemedView>
   );
@@ -65,17 +63,8 @@ const styles = StyleSheet.create({
   },
   fabAdd: {
     position: "absolute",
-    backgroundColor: "rgb(163 230 53)",
     borderRadius: 50,
     bottom: 6,
     right: 4,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.19,
-    shadowRadius: 5.62,
-    elevation: 6,
   },
 });
