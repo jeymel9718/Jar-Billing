@@ -1,11 +1,8 @@
 import ListItem from "@/components/ListItem";
 import { ThemedView } from "@/components/ThemedView";
-import { Fab, FabLabel } from "@/components/ui/fab";
-import { Heading } from "@/components/ui/heading";
-import { HStack } from "@/components/ui/hstack";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, useColorScheme } from "react-native";
+import { StyleSheet, useColorScheme } from "react-native";
 import { FlatList } from "react-native";
 import { FAB } from "react-native-paper";
 

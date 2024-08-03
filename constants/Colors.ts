@@ -8,101 +8,103 @@ const tintColorDark = "#E7C18E";
 
 export const Colors = {
   light: {
-    primary: "#6F7346", // Olive Green
-    onPrimary: "#FFFFFF", // White
-    primaryContainer: "#9DAA67", // Light Olive Green
-    onPrimaryContainer: "#041D11", // Very Dark Green
+    primary: "rgb(43, 107, 40)",
+    onPrimary: "rgb(255, 255, 255)",
+    primaryContainer: "rgb(173, 244, 161)",
+    onPrimaryContainer: "rgb(0, 34, 2)",
+    secondary: "rgb(149, 73, 7)",
+    onSecondary: "rgb(255, 255, 255)",
+    secondaryContainer: "rgb(255, 219, 199)",
+    onSecondaryContainer: "rgb(49, 19, 0)",
+    tertiary: "rgb(156, 65, 68)",
+    onTertiary: "rgb(255, 255, 255)",
+    tertiaryContainer: "rgb(255, 218, 217)",
+    onTertiaryContainer: "rgb(65, 0, 8)",
+    error: "rgb(186, 26, 26)",
+    onError: "rgb(255, 255, 255)",
+    errorContainer: "rgb(255, 218, 214)",
+    onErrorContainer: "rgb(65, 0, 2)",
+    background: "rgb(252, 253, 246)",
+    onBackground: "rgb(26, 28, 25)",
 
-    secondary: "#33422A", // Dark Green
-    onSecondary: "#FFFFFF", // White
-    secondaryContainer: "#6F7346", // Olive Green
-    onSecondaryContainer: "#041D11", // Very Dark Green
+    icon: "rgb(43, 107, 40)", // Dark Green
+    tabIconDefault: "rgb(173, 244, 161)", // Olive Green
+    tabIconSelected: "rgb(43, 107, 40)", // Dark Green
 
-    tertiary: "#E7C18E", // Light Beige
-    onTertiary: "#041D11", // Very Dark Green
-    tertiaryContainer: "#9DAA67", // Light Olive Green
-    onTertiaryContainer: "#041D11", // Very Dark Green
-
-    error: "#D32F2F", // Red
-    onError: "#FFFFFF", // White
-    errorContainer: "#FFCDD2", // Light Red
-    onErrorContainer: "#D32F2F", // Red
-
-    background: "#EDEAD4", // Off-White
-    onBackground: "#041D11", // Very Dark Green
-
-    icon: "#33422A", // Dark Green
-    tabIconDefault: "#6F7346", // Olive Green
-    tabIconSelected: "#33422A", // Dark Green
-
-    tint: "#6F7346", // Olive Green
+    tint: "rgb(43, 107, 40)", // Olive Green
     text: "#041D11", // Very Dark Green
 
-    surface: "#FFFFFF", // White
-    onSurface: "#041D11", // Very Dark Green
-    surfaceVariant: "#E7C18E", // Light Beige
-    onSurfaceVariant: "#041D11", // Very Dark Green
-
-    outline: "#6F7346", // Olive Green
-    outlineVariant: "#9DAA67", // Light Olive Green
-    shadow: "#000000", // Black
-    scrim: "#000000", // Black
-
-    inverseSurface: "#041D11", // Very Dark Green
-    inverseOnSurface: "#EDEAD4", // Off-White
-    inversePrimary: "#33422A", // Dark Green
-
-    surfaceDisabled: "rgba(231, 193, 142, 0.38)", // Light Beige, with opacity
-    onSurfaceDisabled: "rgba(4, 29, 17, 0.38)", // Very Dark Green, with opacity
-    backdrop: "rgba(51, 66, 42, 0.5)", // Dark Green, with opacity
+    surface: "rgb(252, 253, 246)",
+    onSurface: "rgb(26, 28, 25)",
+    surfaceVariant: "rgb(222, 228, 216)",
+    onSurfaceVariant: "rgb(66, 73, 63)",
+    outline: "rgb(115, 121, 111)",
+    outlineVariant: "rgb(194, 200, 188)",
+    shadow: "rgb(0, 0, 0)",
+    scrim: "rgb(0, 0, 0)",
+    inverseSurface: "rgb(47, 49, 45)",
+    inverseOnSurface: "rgb(241, 241, 235)",
+    inversePrimary: "rgb(146, 215, 135)",
+    elevation: {
+      level0: "transparent",
+      level1: "rgb(242, 246, 236)",
+      level2: "rgb(235, 241, 230)",
+      level3: "rgb(229, 237, 223)",
+      level4: "rgb(227, 236, 221)",
+      level5: "rgb(223, 233, 217)"
+    },
+    surfaceDisabled: "rgba(26, 28, 25, 0.12)",
+    onSurfaceDisabled: "rgba(26, 28, 25, 0.38)",
+    backdrop: "rgba(44, 50, 42, 0.4)"
   },
   dark: {
-    primary: "#9DAA67", // Light Olive Green
-    onPrimary: "#041D11", // Very Dark Green
-    primaryContainer: "#6F7346", // Olive Green
-    onPrimaryContainer: "#EDEAD4", // Off-White
+    primary: "rgb(146, 215, 135)",
+    onPrimary: "rgb(0, 58, 5)",
+    primaryContainer: "rgb(14, 82, 18)",
+    onPrimaryContainer: "rgb(173, 244, 161)",
+    secondary: "rgb(255, 182, 136)",
+    onSecondary: "rgb(81, 36, 0)",
+    secondaryContainer: "rgb(115, 54, 0)",
+    onSecondaryContainer: "rgb(255, 219, 199)",
+    tertiary: "rgb(255, 179, 178)",
+    onTertiary: "rgb(95, 19, 26)",
+    tertiaryContainer: "rgb(126, 42, 46)",
+    onTertiaryContainer: "rgb(255, 218, 217)",
+    error: "rgb(255, 180, 171)",
+    onError: "rgb(105, 0, 5)",
+    errorContainer: "rgb(147, 0, 10)",
+    onErrorContainer: "rgb(255, 180, 171)",
+    background: "rgb(26, 28, 25)",
+    onBackground: "rgb(226, 227, 221)",
 
-    secondary: "#33422A", // Dark Green
-    onSecondary: "#EDEAD4", // Off-White
-    secondaryContainer: "#6F7346", // Olive Green
-    onSecondaryContainer: "#EDEAD4", // Off-White
+    icon: "rgb(146, 215, 135)", // Light Olive Green
+    tabIconDefault: "rgb(14, 82, 18)", // Light Olive Green
+    tabIconSelected: "rgb(146, 215, 135)", // Light Beige
 
-    tertiary: "#E7C18E", // Light Beige
-    onTertiary: "#041D11", // Very Dark Green
-    tertiaryContainer: "#9DAA67", // Light Olive Green
-    onTertiaryContainer: "#041D11", // Very Dark Green
-
-    error: "#EF5350", // Light Red
-    onError: "#B71C1C", // Dark Red
-    errorContainer: "#D32F2F", // Red
-    onErrorContainer: "#FFCDD2", // Light Red
-
-    background: "#041D11", // Very Dark Green
-    onBackground: "#EDEAD4", // Off-White
-
-    icon: "#9DAA67", // Light Olive Green
-    tabIconDefault: "#9DAA67", // Light Olive Green
-    tabIconSelected: "#E7C18E", // Light Beige
-
-    tint: "#9DAA67", // Light Olive Green
+    tint: "rgb(146, 215, 135)", // Light Olive Green
     text: "#EDEAD4", // Off-White
 
-    surface: "#041D11", // Very Dark Green
-    onSurface: "#EDEAD4", // Off-White
-    surfaceVariant: "#33422A", // Dark Green
-    onSurfaceVariant: "#EDEAD4", // Off-White
-
-    outline: "#9DAA67", // Light Olive Green
-    outlineVariant: "#6F7346", // Olive Green
-    shadow: "#000000", // Black
-    scrim: "#000000", // Black
-
-    inverseSurface: "#EDEAD4", // Off-White
-    inverseOnSurface: "#041D11", // Very Dark Green
-    inversePrimary: "#6F7346", // Olive Green
-
-    surfaceDisabled: "rgba(111, 115, 70, 0.38)", // Olive Green, with opacity
-    onSurfaceDisabled: "rgba(237, 234, 212, 0.38)", // Off-White, with opacity
-    backdrop: "rgba(4, 29, 17, 0.5)", // Very Dark Green, with opacity
+    surface: "rgb(26, 28, 25)",
+    onSurface: "rgb(226, 227, 221)",
+    surfaceVariant: "rgb(66, 73, 63)",
+    onSurfaceVariant: "rgb(194, 200, 188)",
+    outline: "rgb(140, 147, 136)",
+    outlineVariant: "rgb(66, 73, 63)",
+    shadow: "rgb(0, 0, 0)",
+    scrim: "rgb(0, 0, 0)",
+    inverseSurface: "rgb(226, 227, 221)",
+    inverseOnSurface: "rgb(47, 49, 45)",
+    inversePrimary: "rgb(43, 107, 40)",
+    elevation: {
+      level0: "transparent",
+      level1: "rgb(32, 37, 31)",
+      level2: "rgb(36, 43, 34)",
+      level3: "rgb(39, 49, 37)",
+      level4: "rgb(40, 50, 38)",
+      level5: "rgb(43, 54, 40)"
+    },
+    surfaceDisabled: "rgba(226, 227, 221, 0.12)",
+    onSurfaceDisabled: "rgba(226, 227, 221, 0.38)",
+    backdrop: "rgba(44, 50, 42, 0.4)"
   },
 };
