@@ -1,5 +1,7 @@
 import { ThemedView } from "@/components/ThemedView";
-import { useState } from "react";
+import { HeaderButtonProps } from "@react-navigation/native-stack/src/types";
+import { useNavigation } from "expo-router";
+import { useEffect, useState } from "react";
 import { FlatList, View, StyleSheet, Dimensions } from "react-native";
 import { Button, Card, IconButton, Text, TextInput } from "react-native-paper";
 
@@ -20,15 +22,19 @@ type ItemProps = {
   price: string;
 };
 
-const Item = () => (
+const Item = ({ index, onDelete }: { index: number; onDelete: (index: number) => void }) => (
   <Card style={styles.itemContainer}>
-    <TextInput label="Descripción" style={styles.inputText} theme={buttonTheme} />
+    <TextInput
+      label="Descripción"
+      style={styles.inputText}
+      theme={buttonTheme}
+    />
     <View style={styles.costContainer}>
-      <TextInput label="Precio" style={styles.costInput} theme={buttonTheme}  />
+      <TextInput label="Precio" style={styles.costInput} theme={buttonTheme} />
       <TextInput label="Costo" style={styles.costInput} theme={buttonTheme} />
     </View>
     <Card.Actions>
-      <Button icon="delete" mode="contained-tonal" >
+      <Button icon="delete" mode="contained-tonal" onPress={() => onDelete(index)}>
         Eliminar
       </Button>
     </Card.Actions>
@@ -36,22 +42,39 @@ const Item = () => (
 );
 
 export default function ItemsScreen() {
+  const navigation = useNavigation();
   const [data, setData] = useState<ItemProps[]>([]);
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: (props: HeaderButtonProps) => (
+        <Button icon="content-save" {...props}>
+          Guardar
+        </Button>
+      ),
+    });
+  }, [navigation]);
+
   const newItem = () => {
-    const newData = data.concat({
+    data.push({
       id: generateRandomId(),
       description: "",
       cost: "",
       price: "",
     });
-    setData(newData);
+    setData([...data]);
   };
+
+  const deleteItem = (index: number) => {
+    data.splice(index, 1);
+    setData([...data]);
+  };
+
   return (
     <ThemedView>
       <FlatList
         data={data}
-        renderItem={({ item }) => <Item />}
+        renderItem={({ item, index }) => <Item index={index} onDelete={deleteItem} />}
         ListEmptyComponent={
           <Text variant="titleLarge" style={styles.emptyText}>
             No hay servicios asociados
@@ -89,7 +112,7 @@ const styles = StyleSheet.create({
   },
   costInput: {
     height: windowDimensions.height * 0.05,
-    width: '46%',
+    width: "46%",
   },
   inputText: {
     height: windowDimensions.height * 0.05,

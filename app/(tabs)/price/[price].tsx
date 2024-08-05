@@ -8,8 +8,18 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { Card, Chip, Divider, Text, TextInput } from "react-native-paper";
-import { useRouter } from "expo-router";
+import { HeaderButtonProps } from "@react-navigation/native-stack/src/types";
+import {
+  Button,
+  Card,
+  Chip,
+  Divider,
+  Text,
+  TextInput,
+} from "react-native-paper";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useState, useEffect, useMemo } from "react";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 
 const DATA = [{ quantity: 0, cost: 0, amount: 0, description: "" }];
 const windowDimensions = Dimensions.get("window");
@@ -19,8 +29,50 @@ const buttonTheme = {
 };
 
 export default function PriceScreen() {
+  const [date, setDate] = useState(new Date());
   const theme = useColorScheme() ?? "light";
+  const { price } = useLocalSearchParams<{ price: string }>();
   const router = useRouter();
+  const navigation = useNavigation();
+
+  const formattedDate = useMemo(() => {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // Months are zero-based, so add 1
+    const day = date.getDate();
+    const formattedDate = `${day.toString().padStart(2, "0")}/${month.toString().padStart(2, "0")}/${year}`;
+    return formattedDate;
+  }, [date]);
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setDate(currentDate);
+  };
+
+  const showDatepicker = () => {
+    DateTimePickerAndroid.open({
+      value: date,
+      onChange,
+      mode: "date",
+      is24Hour: true,
+    });
+  };
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: price,
+      headerRight: (props: HeaderButtonProps) => (
+        <Button icon="content-save" {...props}>
+          Guardar
+        </Button>
+      ),
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    if (price === "new") {
+      console.info("new item, create draw price");
+    }
+  }, [price]);
 
   return (
     <ScrollView
@@ -49,6 +101,7 @@ export default function PriceScreen() {
             theme={buttonTheme}
             style={styles.button}
           />
+          <Button onPress={showDatepicker}>Fecha: {formattedDate}</Button>
         </Card.Content>
       </Card>
       <Text variant="titleLarge" style={[styles.sectionText, { marginTop: 7 }]}>
@@ -58,46 +111,43 @@ export default function PriceScreen() {
         style={{
           marginTop: 5,
           position: "relative",
-          marginBottom: 25,
-          padding: 0,
+          marginBottom: 20,
+          paddingBottom: 15,
         }}
       >
-        <Card.Content
+        <View
           style={{
-            justifyContent: "center",
-            alignContent: "center",
-            padding: 0,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignContent: "space-between",
+            padding: 10,
           }}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignContent: "space-between",
-              paddingVertical: 10,
-            }}
-          >
-            <Text variant="titleSmall">Descripción del item</Text>
-            <Text variant="titleSmall">320520</Text>
-          </View>
-          <Divider style={{ padding: 0, width: "100%" }} />
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignContent: "space-between",
-              paddingVertical: 10,
-            }}
-          >
-            <Text variant="titleSmall">Descripción del item</Text>
-            <Text variant="titleSmall">₡320520</Text>
-          </View>
-          <Divider />
+          <Text variant="titleSmall">Descripción del item</Text>
+          <Text variant="titleSmall">320520</Text>
+        </View>
+        <Divider style={{ padding: 0, width: "100%" }} />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignContent: "space-between",
+            padding: 10,
+          }}
+        >
+          <Text variant="titleSmall">Descripción del item</Text>
+          <Text variant="titleSmall">₡320520</Text>
+        </View>
+        <Divider />
 
-          <Chip icon="plus" compact onPress={() => router.navigate("/price/items")} style={styles.addItem}>
-            Añadir servicio
-          </Chip>
-        </Card.Content>
+        <Chip
+          icon="plus"
+          compact
+          onPress={() => router.navigate(`/price/items/${price}`)}
+          style={styles.addItem}
+        >
+          Añadir servicio
+        </Chip>
       </Card>
       <Card>
         <Card.Content style={{ position: "relative", gap: 2, zIndex: -1 }}>
@@ -175,7 +225,7 @@ const styles = StyleSheet.create({
   },
   addItem: {
     position: "absolute",
-    bottom: -19,
+    bottom: -31,
     right: windowDimensions.width * 0.25,
     borderRadius: 40,
     zIndex: 1,
