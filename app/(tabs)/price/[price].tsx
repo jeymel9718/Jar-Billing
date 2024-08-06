@@ -20,6 +20,9 @@ import {
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useState, useEffect, useMemo } from "react";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import { ItemProps } from "@/utils/types";
+import { formatCurrency } from "@/utils/functions";
+import { database } from "@/firebase/database";
 
 const DATA = [{ quantity: 0, cost: 0, amount: 0, description: "" }];
 const windowDimensions = Dimensions.get("window");
@@ -30,10 +33,12 @@ const buttonTheme = {
 
 export default function PriceScreen() {
   const [date, setDate] = useState(new Date());
+  const [itemsData, setItemsData] = useState<ItemProps[]>([]);
   const theme = useColorScheme() ?? "light";
   const { price } = useLocalSearchParams<{ price: string }>();
   const router = useRouter();
   const navigation = useNavigation();
+  const db = database;
 
   const formattedDate = useMemo(() => {
     const year = date.getFullYear();
@@ -72,6 +77,15 @@ export default function PriceScreen() {
     if (price === "new") {
       console.info("new item, create draw price");
     }
+    const readReference = db.read(`price-items/${price}`, (snapshot) => {
+      if (snapshot.exists()) {
+        const data: ItemProps[] = [];
+        Object.values(snapshot.val()).forEach((child) => data.push(child as ItemProps));
+        setItemsData(data);
+      }
+    });
+
+    return () => {db.stopRead(`price-items/${price}`, readReference)};
   }, [price]);
 
   return (
@@ -115,31 +129,22 @@ export default function PriceScreen() {
           paddingBottom: 15,
         }}
       >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignContent: "space-between",
-            padding: 10,
-          }}
-        >
-          <Text variant="titleSmall">Descripción del item</Text>
-          <Text variant="titleSmall">320520</Text>
-        </View>
-        <Divider style={{ padding: 0, width: "100%" }} />
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignContent: "space-between",
-            padding: 10,
-          }}
-        >
-          <Text variant="titleSmall">Descripción del item</Text>
-          <Text variant="titleSmall">₡320520</Text>
-        </View>
-        <Divider />
-
+        {itemsData.map((item, index) => (
+          <View key={index}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignContent: "space-between",
+                padding: 10,
+              }}
+            >
+              <Text variant="titleSmall">{item.description}</Text>
+              <Text variant="titleSmall">{formatCurrency(item.price)}</Text>
+            </View>
+            <Divider />
+          </View>
+        ))}
         <Chip
           icon="plus"
           compact

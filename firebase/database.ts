@@ -170,3 +170,5 @@ export class WebDatabase {
     return set(ref(this.database, 'price/new'), {id: 'new'});
   }
 }
+
+export const database = WebDatabase.getInstance();
