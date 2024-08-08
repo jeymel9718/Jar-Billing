@@ -38,6 +38,7 @@ const Item = ({
   onCostChange,
   onPriceChange,
   onDescriptionChange,
+  scrollCallback,
 }: {
   item: ItemProps;
   index: number;
@@ -45,6 +46,7 @@ const Item = ({
   onCostChange: (index: number, value: string) => void;
   onPriceChange: (index: number, value: string) => void;
   onDescriptionChange: (index: number, value: string) => void;
+  scrollCallback: (index: number) => void;
 }) => (
   <Card style={styles.itemContainer}>
     <TextInput
@@ -52,6 +54,7 @@ const Item = ({
       value={item.description}
       style={styles.inputText}
       theme={buttonTheme}
+      onPressIn={() => scrollCallback(index)}
       onChangeText={(text) => onDescriptionChange(index, text)}
     />
     <View style={styles.costContainer}>
@@ -60,6 +63,7 @@ const Item = ({
         style={styles.costInput}
         theme={buttonTheme}
         value={item.price}
+        onPressIn={() => scrollCallback(index)}
         onChangeText={(text) => onPriceChange(index, text)}
       />
       <TextInput
@@ -67,6 +71,7 @@ const Item = ({
         style={styles.costInput}
         theme={buttonTheme}
         value={item.cost}
+        onPressIn={() => scrollCallback(index)}
         onChangeText={(text) => onCostChange(index, text)}
       />
     </View>
@@ -86,6 +91,7 @@ export default function ItemsScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const indexRef = useRef(0);
+  const flatListRef = useRef<FlatList>(null);
   const [deleteVisible, setDeleteVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -103,7 +109,9 @@ export default function ItemsScreen() {
         </Button>
       ),
     });
+  }, [navigation, itemsData]);
 
+  useEffect(() => {
     db.readOnce(`price-items/${priceId}`).then((snapshot) => {
       if (snapshot.exists()) {
         const databaseItems: ItemProps[] = [];
@@ -113,7 +121,7 @@ export default function ItemsScreen() {
         setItemsData(databaseItems);
       }
     });
-  }, [navigation, itemsData]);
+  }, []);
 
   const newItem = () => {
     const newData = itemsData.concat({
@@ -126,15 +134,21 @@ export default function ItemsScreen() {
   };
 
   const deleteItem = () => {
-    db.deleteData(`price-items/${priceId}/${itemsData[indexRef.current].id}`)
-      .then(() => {
-        itemsData.splice(indexRef.current, 1);
-        setItemsData([...itemsData]);
-        setDeleteVisible(false);
-      })
-      .catch((error) => {
-        return;
-      });
+    if (itemsData[indexRef.current].id === "") {
+      itemsData.splice(indexRef.current, 1);
+      setItemsData([...itemsData]);
+      setDeleteVisible(false);
+    } else {
+      db.deleteData(`price-items/${priceId}/${itemsData[indexRef.current].id}`)
+        .then(() => {
+          itemsData.splice(indexRef.current, 1);
+          setItemsData([...itemsData]);
+          setDeleteVisible(false);
+        })
+        .catch((error) => {
+          return;
+        });
+    }
   };
 
   const handleCostChange = (index: number, value: string) => {
@@ -152,7 +166,14 @@ export default function ItemsScreen() {
     setItemsData([...itemsData]);
   };
 
-  const saveData = useCallback(async () => {
+  const scrollToInput = useCallback(
+    (index: number) => {
+      flatListRef.current?.scrollToIndex({ index, animated: true });
+    },
+    [flatListRef]
+  );
+
+  const saveData = async () => {
     setVisible(true);
     setLoading(true);
     await itemsData.forEach(async (item) => {
@@ -177,7 +198,7 @@ export default function ItemsScreen() {
     setLoading(false);
     setVisible(false);
     router.back();
-  }, [itemsData]);
+  };
 
   const dismissDialog = () => {
     setError("");
@@ -218,7 +239,9 @@ export default function ItemsScreen() {
         </Dialog>
         <Dialog visible={deleteVisible}>
           <Dialog.Title>Eliminar servicio</Dialog.Title>
-          <Dialog.Content><Text variant="titleMedium">¿Desea eliminar el servicio?</Text></Dialog.Content>
+          <Dialog.Content>
+            <Text variant="titleMedium">¿Desea eliminar el servicio?</Text>
+          </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDeleteVisible(false)}>Cancelar</Button>
             <Button onPress={() => deleteItem()}>Aceptar</Button>
@@ -226,6 +249,7 @@ export default function ItemsScreen() {
         </Dialog>
       </Portal>
       <FlatList
+        ref={flatListRef}
         data={itemsData}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
@@ -236,6 +260,7 @@ export default function ItemsScreen() {
             onCostChange={handleCostChange}
             onDescriptionChange={handleDescription}
             onPriceChange={handlePriceChange}
+            scrollCallback={scrollToInput}
           />
         )}
         ListEmptyComponent={
@@ -244,13 +269,15 @@ export default function ItemsScreen() {
           </Text>
         }
         ListFooterComponent={
-          <IconButton
-            icon="plus"
-            size={windowDimensions.width * 0.1}
-            onPress={newItem}
-            style={styles.addButton}
-            mode="contained"
-          />
+          <View style={{marginBottom: windowDimensions.height*0.4}}>
+            <IconButton
+              icon="plus"
+              size={windowDimensions.width * 0.1}
+              onPress={newItem}
+              style={styles.addButton}
+              mode="contained"
+            />
+          </View>
         }
       />
     </ThemedView>

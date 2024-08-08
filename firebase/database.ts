@@ -165,10 +165,6 @@ export class WebDatabase {
   getUserInfo(uid: string): Promise<DataSnapshot> {
     return get(child(ref(this.database), `users/${uid}`));
   }
-
-  createNewPrice(): Promise<void> {
-    return set(ref(this.database, 'price/new'), {id: 'new'});
-  }
 }
 
 export const database = WebDatabase.getInstance();

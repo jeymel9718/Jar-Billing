@@ -1,10 +1,15 @@
 export function formatCurrency(
-  value: string,
+  value: string | number,
   locale: string = "es-CR",
   currency: string = "CRC"
 ): string {
   // Convert the string to a number
-  const numberValue = parseFloat(value);
+  let numberValue: number;
+  if (typeof value === "string") {
+    numberValue = parseFloat(value);
+  } else {
+    numberValue = value;
+  }
 
   // Check if the conversion was successful
   if (isNaN(numberValue)) {
@@ -19,4 +24,12 @@ export function formatCurrency(
 
   // Format the number as a currency string
   return formatter.format(numberValue);
+};
+
+
+export function validateEmail(email: string): boolean {
+  if (email === "") return true;
+  // Regular expression to validate email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
