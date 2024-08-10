@@ -23,7 +23,7 @@ import {
   TextInput,
 } from "react-native-paper";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { useState, useEffect, useMemo, useReducer } from "react";
+import { useState, useEffect, useMemo, useReducer, useRef } from "react";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { ItemProps, Price } from "@/utils/types";
 import { formatCurrency, validateEmail } from "@/utils/functions";
@@ -59,6 +59,9 @@ export default function PriceScreen() {
   const [itemsData, setItemsData] = useState<ItemProps[]>([]);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [unsaved, setUnsaved] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
   const [priceRef, setPriceRef] = useState<any>();
   const [discountVisible, setDiscountVisible] = useState(false);
   const [error, setError] = useState<string>("");
@@ -66,6 +69,7 @@ export default function PriceScreen() {
   const { price } = useLocalSearchParams<{ price: string }>();
   const router = useRouter();
   const navigation = useNavigation();
+  const discardChangesCallback = useRef<any>(null);
   const db = database;
   const [state, dispatch] = useReducer(amountReducer, {
     discountType: "amount",
@@ -88,6 +92,7 @@ export default function PriceScreen() {
   }, [date]);
 
   const onChange = (event: any, selectedDate: any) => {
+    setUnsaved(true);
     const currentDate = selectedDate;
     setDate(currentDate);
   };
@@ -122,16 +127,56 @@ export default function PriceScreen() {
         </Button>
       ),
     });
-  }, [navigation, state, date, total]);
+
+    navigation.addListener("beforeRemove", (e) => {
+      if (!unsaved && price !== "new") {
+        console.info("No changes to discard");
+        return;
+      }
+
+      e.preventDefault();
+      setShowWarning(true);
+      if (discardChangesCallback.current === null) {
+
+        discardChangesCallback.current = () => {
+          if (price === "new") {
+            db.deleteData(`price-items/${state.id}`).then(() => {
+              setShowWarning(false);
+              navigation.dispatch(e.data.action);
+            });
+          } else {
+            setShowWarning(false);
+            navigation.dispatch(e.data.action);
+          }
+        };
+      }
+    });
+  }, [navigation, state, date, total, unsaved]);
 
   useEffect(() => {
+    let priceRef: string = "";
     if (price === "new") {
-      const newRef = db.getNewRef("price") 
+      const newRef = db.getNewRef("price");
       setPriceRef(newRef);
+      priceRef = newRef.key;
       dispatch({ type: "id", payload: newRef.key });
+    } else {
+      db.readOnce(`price/${price}`).then((snapshot) => {
+        if (snapshot.exists()) {
+          const currentPrice: Price = snapshot.val();
+          Object.keys(currentPrice).forEach((key) => {
+            const priceKey = key as keyof Price;
+            if (key === "date") {
+              setDate(new Date(currentPrice[key]));
+            } else {
+              dispatch({type: priceKey, payload: currentPrice[priceKey]});
+            }
+          }) 
+        }
+      })
     }
 
-    const readReference = db.read(`price-items/${state.id}`, (snapshot) => {
+    const readReference = db.read(`price-items/${priceRef}`, (snapshot) => {
       if (snapshot.exists()) {
         const data: ItemProps[] = [];
         let amount = 0;
@@ -156,6 +201,7 @@ export default function PriceScreen() {
   };
 
   const handleDiscountChange = (value: string) => {
+    setUnsaved(true);
     value = value.replace(/\D+/g, "");
     if (parseInt(value) > 100 && state.discountType === "percent") {
       dispatch({ type: "discount", payload: "100" });
@@ -165,27 +211,37 @@ export default function PriceScreen() {
   };
 
   const handleNumberChange = (value: string) => {
+    setUnsaved(true);
     value = value.replace(/\D+/g, "");
     dispatch({ type: "number", payload: value.slice(0, 8) });
   };
 
   const handleNameChange = (value: string) => {
+    setUnsaved(true);
     dispatch({ type: "name", payload: value });
   };
 
   const handleEmailChange = (value: string) => {
+    setUnsaved(true);
     dispatch({ type: "email", payload: value });
   };
 
   const savePrice = () => {
     setLoading(true);
     setVisible(true);
-    db.pushData(priceRef, {...state, date: date.toDateString(), total: total.toString()}).then(() => {
-      setLoading(false);
-    }).catch(() => {
-      setError("Hubo un error al guardar la cotización");
-      setLoading(false);
-    });
+    db.pushData(priceRef, {
+      ...state,
+      date: date.toDateString(),
+      total: total.toString(),
+    })
+      .then(() => {
+        setUnsaved(false);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Hubo un error al guardar la cotización");
+        setLoading(false);
+      });
   };
 
   return (
@@ -217,7 +273,10 @@ export default function PriceScreen() {
             </Dialog.Actions>
           )}
         </Dialog>
-        <Dialog visible={discountVisible} onDismiss={() => setDiscountVisible(false)}>
+        <Dialog
+          visible={discountVisible}
+          onDismiss={() => setDiscountVisible(false)}
+        >
           <Dialog.Title>Agregar descuento</Dialog.Title>
           <Dialog.Content>
             <RadioButton.Group
@@ -237,6 +296,20 @@ export default function PriceScreen() {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDiscountVisible(false)}>Aceptar</Button>
+          </Dialog.Actions>
+        </Dialog>
+        <Dialog visible={showWarning}>
+          <Dialog.Title>Cambios sin guardar</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="titleSmall">
+              ¿Desea salir sin guardar los cambios?
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowWarning(false)}>
+              Seguir editando
+            </Button>
+            <Button onPress={discardChangesCallback.current}>Salir</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -376,6 +449,7 @@ export default function PriceScreen() {
           </View>
         </Card.Content>
       </Card>
+      <View style={{ marginBottom: 30 }} />
     </ScrollView>
   );
 }
