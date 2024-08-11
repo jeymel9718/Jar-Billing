@@ -1,5 +1,5 @@
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { DataSnapshot, Database, child, endAt, get, getDatabase, off, onValue, orderByChild, push, query, ref, remove, set, startAt, update } from "firebase/database";
+import { DataSnapshot, Database, child, endAt, get, getDatabase, increment, off, onValue, orderByChild, push, query, ref, remove, set, startAt, update } from "firebase/database";
 import { FirebaseStorage, getStorage, uploadBytes, ref as storageRef, getDownloadURL, deleteObject, list } from "firebase/storage";
 
 const firebaseConfig = {
@@ -107,6 +107,20 @@ export class WebDatabase {
   updateData(path: string, data: any) {
     const updates = {
       [path]: data
+    };
+    return update(ref(this.database), updates);
+  }
+
+  incrementPrices() {
+    const updates: any = {
+      "counters/prices": increment(1),
+    };
+    return update(ref(this.database), updates);
+  }
+
+  incrementBills() {
+    const updates: any = {
+      "counters/bills": increment(1),
     };
     return update(ref(this.database), updates);
   }

@@ -81,6 +81,7 @@ export default function PriceScreen() {
     email: "",
     name: "",
     date: "",
+    orderId: "",
   });
 
   const formattedDate = useMemo(() => {
@@ -102,11 +103,16 @@ export default function PriceScreen() {
   };
 
   const total = useMemo(() => {
+    let totalAmount: number;
     if (state.discountType === "amount") {
-      return parseInt(state.subTotal) - parseInt(state.discount);
+      totalAmount = parseInt(state.subTotal) - parseInt(state.discount);
     } else {
-      return parseInt(state.subTotal) - getPercentageMount();
+      totalAmount = parseInt(state.subTotal) - getPercentageMount();
     }
+    if (totalAmount !== parseInt(state.total)) {
+      setUnsaved(true);
+    }
+    return totalAmount;
   }, [state.subTotal, state.discount, state.discountType]);
 
   const showDatepicker = () => {
@@ -129,15 +135,13 @@ export default function PriceScreen() {
     });
 
     navigation.addListener("beforeRemove", (e) => {
-      if (!unsaved && price !== "new") {
-        console.info("No changes to discard");
+      if (!unsaved) {
         return;
       }
 
       e.preventDefault();
       setShowWarning(true);
       if (discardChangesCallback.current === null) {
-
         discardChangesCallback.current = () => {
           if (price === "new") {
             db.deleteData(`price-items/${state.id}`).then(() => {
@@ -160,6 +164,16 @@ export default function PriceScreen() {
       setPriceRef(newRef);
       priceRef = newRef.key;
       dispatch({ type: "id", payload: newRef.key });
+      db.readOnce("counters/prices")
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const orderId: number = snapshot.val();
+            dispatch({ type: "orderId", payload: `${orderId + 1}` });
+          }
+        })
+        .catch((error) => {
+          console.info("Error:", error);
+        });
     } else {
       db.readOnce(`price/${price}`).then((snapshot) => {
         if (snapshot.exists()) {
@@ -169,11 +183,11 @@ export default function PriceScreen() {
             if (key === "date") {
               setDate(new Date(currentPrice[key]));
             } else {
-              dispatch({type: priceKey, payload: currentPrice[priceKey]});
+              dispatch({ type: priceKey, payload: currentPrice[priceKey] });
             }
-          }) 
+          });
         }
-      })
+      });
     }
 
     const readReference = db.read(`price-items/${priceRef}`, (snapshot) => {
@@ -229,19 +243,36 @@ export default function PriceScreen() {
   const savePrice = () => {
     setLoading(true);
     setVisible(true);
-    db.pushData(priceRef, {
-      ...state,
-      date: date.toDateString(),
-      total: total.toString(),
-    })
-      .then(() => {
-        setUnsaved(false);
-        setLoading(false);
+    if (price === "new") {
+      db.pushData(priceRef, {
+        ...state,
+        date: date.toDateString(),
+        total: total.toString(),
       })
-      .catch(() => {
-        setError("Hubo un error al guardar la cotización");
-        setLoading(false);
-      });
+        .then(() => {
+          setUnsaved(false);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError("Hubo un error al guardar la cotización");
+          setLoading(false);
+        });
+      db.incrementPrices();
+    } else {
+      db.updateData(`price/${price}`, {
+        ...state,
+        date: date.toDateString(),
+        total: total.toString(),
+      })
+        .then(() => {
+          setUnsaved(false);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError("Hubo un error al guardar la cotización");
+          setLoading(false);
+        });
+    }
   };
 
   return (

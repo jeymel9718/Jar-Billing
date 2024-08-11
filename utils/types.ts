@@ -15,4 +15,5 @@ export type Price = {
   number: string;
   email: string;
   date: string;
+  orderId: string;
 }
