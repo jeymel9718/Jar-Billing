@@ -3,6 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Colors } from "@/constants/Colors";
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   ScrollView,
   StyleSheet,
@@ -61,7 +62,6 @@ export default function PriceScreen() {
   const [loading, setLoading] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
   const [priceRef, setPriceRef] = useState<any>();
   const [discountVisible, setDiscountVisible] = useState(false);
   const [error, setError] = useState<string>("");
@@ -69,7 +69,6 @@ export default function PriceScreen() {
   const { price } = useLocalSearchParams<{ price: string }>();
   const router = useRouter();
   const navigation = useNavigation();
-  const discardChangesCallback = useRef<any>(null);
   const db = database;
   const [state, dispatch] = useReducer(amountReducer, {
     discountType: "amount",
@@ -109,11 +108,14 @@ export default function PriceScreen() {
     } else {
       totalAmount = parseInt(state.subTotal) - getPercentageMount();
     }
-    if (totalAmount !== parseInt(state.total)) {
+    if (totalAmount != parseFloat(state.total)) {
       setUnsaved(true);
+    } else {
+      setUnsaved(false);
     }
+
     return totalAmount;
-  }, [state.subTotal, state.discount, state.discountType]);
+  }, [state.subTotal, state.discount, state.discountType, state.total]);
 
   const showDatepicker = () => {
     DateTimePickerAndroid.open({
@@ -133,36 +135,46 @@ export default function PriceScreen() {
         </Button>
       ),
     });
+  }, [navigation, state, unsaved, total, date]);
 
-    navigation.addListener("beforeRemove", (e) => {
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
       if (!unsaved) {
         return;
       }
 
-      e.preventDefault();
-      setShowWarning(true);
-      if (discardChangesCallback.current === null) {
-        discardChangesCallback.current = () => {
-          if (price === "new") {
-            db.deleteData(`price-items/${state.id}`).then(() => {
-              setShowWarning(false);
-              navigation.dispatch(e.data.action);
-            });
-          } else {
-            setShowWarning(false);
+      const discardChanges = () => {
+        if (price === "new") {
+          db.deleteData(`price-items/${state.id}`).then(() => {
             navigation.dispatch(e.data.action);
-          }
-        };
-      }
+          });
+        } else {
+          navigation.dispatch(e.data.action);
+        }
+      };
+
+      e.preventDefault();
+      Alert.alert(
+        "Cambios sin guardar",
+        "Existen cambios sin guardar. ¿Desea salir sin guardar los cambios?",
+        [
+          { text: "Seguir editando", style: "cancel", onPress: () => {} },
+          {
+            text: "Salir",
+            style: "destructive",
+            onPress: discardChanges,
+          },
+        ]
+      );
     });
-  }, [navigation, state, date, total, unsaved]);
+
+    return unsubscribe;
+  }, [navigation, state.id, unsaved]);
 
   useEffect(() => {
-    let priceRef: string = "";
     if (price === "new") {
       const newRef = db.getNewRef("price");
       setPriceRef(newRef);
-      priceRef = newRef.key;
       dispatch({ type: "id", payload: newRef.key });
       db.readOnce("counters/prices")
         .then((snapshot) => {
@@ -189,8 +201,15 @@ export default function PriceScreen() {
         }
       });
     }
+  }, [price]);
 
-    const readReference = db.read(`price-items/${priceRef}`, (snapshot) => {
+  useEffect(() => {
+    if (state.id === "") {
+      return;
+    }
+
+    const readReference = db.read(`price-items/${state.id}`, (snapshot) => {
+      console.info("read reference",snapshot.ref);
       if (snapshot.exists()) {
         const data: ItemProps[] = [];
         let amount = 0;
@@ -199,15 +218,16 @@ export default function PriceScreen() {
           amount += parseInt(tmpItem.price);
           data.push(tmpItem);
         });
+        console.info("amount", amount, data.length);
         setItemsData(data);
         dispatch({ type: "subTotal", payload: amount.toString() });
+      } else {
+        console.info("no snapshot");
       }
     });
 
-    return () => {
-      db.stopRead(`price-items/${state.id}`, readReference);
-    };
-  }, [price]);
+    return () => db.stopRead(`price-items/${state.id}`, readReference);
+  }, [state.id]);
 
   const dismissDialog = () => {
     setError("");
@@ -252,6 +272,7 @@ export default function PriceScreen() {
         .then(() => {
           setUnsaved(false);
           setLoading(false);
+          dispatch({ type: "total", payload: total.toString() });
         })
         .catch(() => {
           setError("Hubo un error al guardar la cotización");
@@ -329,25 +350,11 @@ export default function PriceScreen() {
             <Button onPress={() => setDiscountVisible(false)}>Aceptar</Button>
           </Dialog.Actions>
         </Dialog>
-        <Dialog visible={showWarning}>
-          <Dialog.Title>Cambios sin guardar</Dialog.Title>
-          <Dialog.Content>
-            <Text variant="titleSmall">
-              ¿Desea salir sin guardar los cambios?
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => setShowWarning(false)}>
-              Seguir editando
-            </Button>
-            <Button onPress={discardChangesCallback.current}>Salir</Button>
-          </Dialog.Actions>
-        </Dialog>
       </Portal>
       <Text variant="titleLarge" style={styles.sectionText}>
         Detalles del cliente
       </Text>
-      <Card>
+      <Card style={styles.cardContainer}>
         <Card.Content style={styles.cardContent}>
           <TextInput
             mode="outlined"
@@ -395,6 +402,7 @@ export default function PriceScreen() {
           position: "relative",
           marginBottom: 20,
           paddingBottom: 15,
+          marginHorizontal: 8,
         }}
       >
         {itemsData.map((item, index) => (
@@ -422,7 +430,7 @@ export default function PriceScreen() {
           Añadir servicio
         </Chip>
       </Card>
-      <Card>
+      <Card style={styles.cardContainer}>
         <Card.Content style={{ position: "relative", gap: 2, zIndex: -1 }}>
           <View style={styles.inlineContainer}>
             <Text style={styles.textOpacity} variant="titleSmall">
@@ -466,7 +474,7 @@ export default function PriceScreen() {
                 bottom: 0,
                 left: 0,
                 paddingHorizontal: 15,
-                width: windowDimensions.width * 0.917,
+                width: windowDimensions.width * 0.955,
                 height: "48%",
                 borderBottomEndRadius: 10,
                 borderBottomStartRadius: 10,
@@ -488,7 +496,10 @@ export default function PriceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    paddingVertical: 15,
+  },
+  cardContainer: {
+    marginHorizontal: 8,
   },
   sectionText: {
     opacity: 0.5,

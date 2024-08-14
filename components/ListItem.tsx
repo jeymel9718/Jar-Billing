@@ -1,5 +1,8 @@
 import { Colors } from "@/constants/Colors";
-import { StyleSheet, View } from "react-native";
+import { formatCurrency } from "@/utils/functions";
+import { Price } from "@/utils/types";
+import { Link, useRouter } from "expo-router";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Card, Divider, Text } from "react-native-paper";
 
 const TextLine = ({
@@ -23,29 +26,27 @@ const TextLine = ({
   );
 };
 
-export type ListItemProps = {
-  number: number;
-  clientName: string;
-  date: string;
-  amount: string;
+export type ListItemProps = Price & {
   colorScheme?: "light" | "dark";
 };
 
 export default function ListItem({
-  number,
-  clientName,
+  id,
+  orderId,
+  name,
   date,
-  amount,
+  total,
   colorScheme,
 }: ListItemProps) {
   const colorTheme = colorScheme ?? "light";
+  const router = useRouter();
   return (
-    <Card style={styles.cardContainer}>
-      <Card.Title title={`#${number}`} titleVariant="titleMedium" />
+    <Card style={styles.cardContainer} onPress={() => router.navigate(`/price/${id}`)}>
+      <Card.Title title={`#${orderId}`} titleVariant="titleMedium" />
       <Card.Content>
         <TextLine
           textKey="Nombre del cliente"
-          value={clientName}
+          value={name}
           style={{ color: Colors[colorTheme].primary }}
         />
         <TextLine
@@ -54,7 +55,7 @@ export default function ListItem({
           style={{ color: Colors[colorTheme].primary }}
         />
         <Divider style={styles.divider} />
-        <Text variant="titleSmall">{amount} CRC</Text>
+        <Text variant="titleSmall">{formatCurrency(total)}</Text>
       </Card.Content>
     </Card>
   );
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    marginVertical: 2
+    marginVertical: 2,
   },
   textContainer: {
     flex: 1,
@@ -78,5 +79,5 @@ const styles = StyleSheet.create({
   },
   keyText: {
     opacity: 0.4,
-  }
+  },
 });

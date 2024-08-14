@@ -1,7 +1,10 @@
 import ListItem from "@/components/ListItem";
 import { ThemedView } from "@/components/ThemedView";
+import { database } from "@/firebase/database";
+import { Price } from "@/utils/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useEffect, useState } from "react";
 import { StyleSheet, useColorScheme } from "react-native";
 import { FlatList } from "react-native";
 import { FAB } from "react-native-paper";
@@ -31,11 +34,28 @@ const DATA = [
 ];
 
 export default function ListPriceScreen() {
+  const db = database;
+  const [prices, setPrices] = useState<Price[]>([]);
   const theme = useColorScheme() ?? 'light';
+
+  useEffect(() => {
+    const readReference = db.read("price", (snapshot) => {
+      if (snapshot.exists()) {
+        const data: Price[] = [];
+        snapshot.forEach((child) => {
+          data.push(child.val() as Price);
+        });
+        setPrices(data);
+      }
+    });
+
+    return () => {db.stopRead("price", readReference)};
+  }, []);
+
   return (
     <ThemedView style={styles.container}>
       <FlatList
-        data={DATA}
+        data={prices}
         renderItem={({ item }) => <ListItem {...item} colorScheme={theme} />}
         keyExtractor={(item) => item.id}
       />
