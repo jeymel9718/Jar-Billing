@@ -18,6 +18,7 @@ import {
   Dialog,
   Divider,
   HelperText,
+  IconButton,
   Portal,
   RadioButton,
   Text,
@@ -29,8 +30,8 @@ import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { ItemProps, Price } from "@/utils/types";
 import { formatCurrency, validateEmail } from "@/utils/functions";
 import { database } from "@/firebase/database";
+import HeaderMenu from "@/components/HeaderMenu";
 
-const DATA = [{ quantity: 0, cost: 0, amount: 0, description: "" }];
 const windowDimensions = Dimensions.get("window");
 
 const buttonTheme = {
@@ -128,14 +129,20 @@ export default function PriceScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      title: price,
+      title: state.orderId,
       headerRight: (props: HeaderButtonProps) => (
-        <Button icon="content-save" {...props} onPress={savePrice}>
-          Guardar
-        </Button>
+        <HeaderMenu
+          headerProps={props}
+          onSave={savePrice}
+          onPreview={previewPrice}
+          onShare={() => {}}
+          visible={showMenu}
+          onDismiss={() => setShowMenu(false)}
+          anchor={<IconButton icon="dots-vertical" onPress={() => setShowMenu(true)}/>}
+        />
       ),
     });
-  }, [navigation, state, unsaved, total, date]);
+  }, [navigation, state, showMenu, unsaved, total, date]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", (e) => {
@@ -209,7 +216,6 @@ export default function PriceScreen() {
     }
 
     const readReference = db.read(`price-items/${state.id}`, (snapshot) => {
-      console.info("read reference",snapshot.ref);
       if (snapshot.exists()) {
         const data: ItemProps[] = [];
         let amount = 0;
@@ -218,7 +224,6 @@ export default function PriceScreen() {
           amount += parseInt(tmpItem.price);
           data.push(tmpItem);
         });
-        console.info("amount", amount, data.length);
         setItemsData(data);
         dispatch({ type: "subTotal", payload: amount.toString() });
       } else {
@@ -294,6 +299,11 @@ export default function PriceScreen() {
           setLoading(false);
         });
     }
+  };
+
+  const previewPrice = () => {
+    router.navigate(`/price/preview/${price}`);
+    setShowMenu(false);
   };
 
   return (
