@@ -62,7 +62,6 @@ export default function PriceScreen() {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const [priceRef, setPriceRef] = useState<any>();
   const [discountVisible, setDiscountVisible] = useState(false);
   const [error, setError] = useState<string>("");
@@ -136,13 +135,10 @@ export default function PriceScreen() {
           onSave={savePrice}
           onPreview={previewPrice}
           onShare={() => {}}
-          visible={showMenu}
-          onDismiss={() => setShowMenu(false)}
-          anchor={<IconButton icon="dots-vertical" onPress={() => setShowMenu(true)}/>}
         />
       ),
     });
-  }, [navigation, state, showMenu, unsaved, total, date]);
+  }, [navigation, state, unsaved, total, date]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", (e) => {
@@ -303,7 +299,6 @@ export default function PriceScreen() {
 
   const previewPrice = () => {
     router.navigate(`/price/preview/${price}`);
-    setShowMenu(false);
   };
 
   return (

@@ -4,9 +4,10 @@ import { generateHtml } from "@/utils/functions";
 import { ItemProps, Price } from "@/utils/types";
 import { printToFileAsync } from "expo-print";
 import { useLocalSearchParams } from "expo-router";
+import { shareAsync } from "expo-sharing";
 import { useEffect, useMemo, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
-import { Icon, Text } from "react-native-paper";
+import { Button, Icon, Text } from "react-native-paper";
 import WebView from "react-native-webview";
 
 const windowDimensions = Dimensions.get("window");
@@ -26,6 +27,7 @@ export default function PreviewPriceScreen() {
     orderId: "",
   });
   const [priceItems, setPriceItems] = useState<ItemProps[]>([]);
+  const [pdfUri, setPdfUri] = useState<string>("");
   const db = database;
 
   useEffect(() => {
@@ -59,6 +61,11 @@ export default function PreviewPriceScreen() {
     return html;
   }, [currentPrice, priceItems]);
 
+  const sharePdf = async () => {
+    const { uri } = await printToFileAsync({ html });
+    await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+  };
+
   return (
     <ThemedView>
       <View style={styles.previewContainer}>
@@ -77,6 +84,9 @@ export default function PreviewPriceScreen() {
           />
         </View>
       )}
+      <View style={styles.buttonContainer}>
+        <Button mode="contained" icon="share-variant" onPress={() => sharePdf()} style={styles.button}>Compartir</Button>
+      </View>
     </ThemedView>
   );
 }
@@ -88,14 +98,23 @@ const styles = StyleSheet.create({
     alignContent: "center",
     alignItems: "center",
     width: windowDimensions.width,
-    marginVertical: 6,
+    marginVertical: 12,
   },
   preview: {
     width: "100%",
-    height: windowDimensions.height*0.7,
+    height: windowDimensions.height*0.53,
     marginVertical: 20,
   },
   webView: {
     flex: 1,
   },
+  button: {
+    width: '70%'
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+  }
 });

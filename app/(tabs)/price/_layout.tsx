@@ -8,7 +8,7 @@ export default function PriceLayout() {
 
   return (
     <Stack screenOptions={{headerStyle: {backgroundColor: Colors[theme].primaryContainer}}}>
-      <Stack.Screen name="index" options={{title: "Cotizaciones", headerRight: props => <IconButton icon='magnify' {...props}/>}}/>
+      <Stack.Screen name="index" options={{title: "Cotizaciones"}}/>
       <Stack.Screen name="[price]"/>
       <Stack.Screen name="[...items]" options={{title: 'Lista de servicios', presentation: 'modal'}}/>
       <Stack.Screen name="preview/[price]" options={{title: 'Cotización'}} />

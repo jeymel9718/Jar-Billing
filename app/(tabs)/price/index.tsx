@@ -2,41 +2,56 @@ import ListItem from "@/components/ListItem";
 import { ThemedView } from "@/components/ThemedView";
 import { database } from "@/firebase/database";
 import { Price } from "@/utils/types";
-import { Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { StyleSheet, useColorScheme } from "react-native";
+import { HeaderButtonProps } from "@react-navigation/native-stack/src/types";
+import { Link, useNavigation } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Dimensions,
+  StyleSheet,
+  TextInput,
+  useColorScheme,
+} from "react-native";
 import { FlatList } from "react-native";
-import { FAB } from "react-native-paper";
+import { FAB, IconButton } from "react-native-paper";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
-const DATA = [
-  {
-    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-    number: 1001,
-    clientName: "John Doo",
-    date: "any",
-    amount: "2336",
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-    number: 1002,
-    clientName: "John Doo",
-    date: "any",
-    amount: "2336",
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d72",
-    number: 1003,
-    clientName: "John Doo",
-    date: "any",
-    amount: "2336",
-  },
-];
+const windowDimensions = Dimensions.get("window");
 
 export default function ListPriceScreen() {
   const db = database;
+  const navigation = useNavigation();
+  const [search, onChangeSearch] = useState("");
   const [prices, setPrices] = useState<Price[]>([]);
-  const theme = useColorScheme() ?? 'light';
+  const [isExpanded, setIsExpanded] = useState(false);
+  const inputWidth = useSharedValue(40);
+  const theme = useColorScheme() ?? "light";
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      width: withTiming(inputWidth.value, { duration: 300 }),
+    };
+  });
+
+  const toggleSearchBar = () => {
+    if (isExpanded) {
+      inputWidth.value = 40;
+    } else {
+      inputWidth.value = windowDimensions.width * 0.89;
+    }
+    setIsExpanded(!isExpanded);
+  };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: (props: HeaderButtonProps) => (
+        <IconButton icon="magnify" {...props} onPress={toggleSearchBar} />
+      ),
+    });
+  }, [navigation, isExpanded]);
 
   useEffect(() => {
     const readReference = db.read("price", (snapshot) => {
@@ -49,22 +64,42 @@ export default function ListPriceScreen() {
       }
     });
 
-    return () => {db.stopRead("price", readReference)};
+    return () => {
+      db.stopRead("price", readReference);
+    };
   }, []);
+
+  const filteredPrices = useMemo(() => {
+    if (search) {
+      return prices.filter((item) =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+      );
+    } else {
+      return prices;
+    }
+  }, [prices, search]);
 
   return (
     <ThemedView style={styles.container}>
+      {isExpanded && (
+        <Animated.View style={[styles.searchContainer, animatedStyle]}>
+          <TextInput
+            style={styles.input}
+            value={search}
+            onChangeText={onChangeSearch}
+            placeholder="Buscar..."
+            onBlur={toggleSearchBar}
+            autoFocus={isExpanded}
+          />
+        </Animated.View>
+      )}
       <FlatList
-        data={prices}
+        data={filteredPrices}
         renderItem={({ item }) => <ListItem {...item} colorScheme={theme} />}
         keyExtractor={(item) => item.id}
       />
       <Link asChild href="/price/new">
-        <FAB
-          icon={'plus'}
-          style={styles.fabAdd}
-          size='medium'
-        />
+        <FAB icon={"plus"} style={styles.fabAdd} size="medium" />
       </Link>
     </ThemedView>
   );
@@ -76,12 +111,24 @@ const styles = StyleSheet.create({
     position: "relative",
     paddingVertical: 32,
     paddingHorizontal: 20,
-    gap: 16,
+    gap: 5,
   },
   fabAdd: {
     position: "absolute",
     borderRadius: 50,
     bottom: 6,
     right: 4,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    overflow: "hidden",
+    borderRadius: 20,
+    backgroundColor: "#f0f0f0",
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    paddingHorizontal: 10,
   },
 });
