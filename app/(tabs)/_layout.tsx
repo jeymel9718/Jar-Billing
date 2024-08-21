@@ -51,6 +51,18 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="invoice"
+        options={{
+          title: "Facturas",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "receipt" : "receipt-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

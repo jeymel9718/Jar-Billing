@@ -5,7 +5,7 @@ export type ItemProps = {
   price: string;
 };
 
-export type Price = {
+export type Invoice = {
   id: string;
   discountType: "percent" | "amount";
   discount: string;
@@ -16,4 +16,5 @@ export type Price = {
   email: string;
   date: string;
   orderId: string;
-}
+  status?: 'pending' | 'paid';
+};

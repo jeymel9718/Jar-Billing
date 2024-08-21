@@ -1,4 +1,4 @@
-import { ItemProps, Price } from "./types";
+import { ItemProps, Invoice } from "./types";
 
 export function formatCurrency(
   value: string | number,
@@ -26,8 +26,7 @@ export function formatCurrency(
 
   // Format the number as a currency string
   return formatter.format(numberValue);
-};
-
+}
 
 export function validateEmail(email: string): boolean {
   if (email === "") return true;
@@ -36,13 +35,21 @@ export function validateEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
-export function generateHtml(price: Price, priceItems: ItemProps[]): string {
-  const itemsHtml = priceItems.map((item) => `
+const getPercentageMount = (subTotal: string, discount: string) => {
+  return formatCurrency(parseFloat(subTotal) * (parseFloat(discount) / 100));
+};
+
+export function generateHtml(price: Invoice, priceItems: ItemProps[]): string {
+  const itemsHtml = priceItems
+    .map(
+      (item) => `
     <tr class="item">
       <td>${item.description}</td>
       <td>${formatCurrency(item.price)}</td>
     </tr>
-  `).join("");
+  `
+    )
+    .join("");
 
   const htmlContent = `
   <!DOCTYPE html>
@@ -204,9 +211,9 @@ export function generateHtml(price: Price, priceItems: ItemProps[]): string {
 				</tr>
         ${itemsHtml}
 				<tr class="item last">
-					<td>Domain name (1 year)</td>
+					<td>Descuento</td>
 
-					<td>$10.00</td>
+					<td>${price.discountType === "amount" ? formatCurrency(price.discount) : getPercentageMount(price.subTotal, price.discount)}</td>
 				</tr>
 
 				<tr class="total">

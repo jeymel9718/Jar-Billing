@@ -21,10 +21,6 @@ import {
   TextInput,
 } from "react-native-paper";
 
-function generateRandomId(length: number = 16): string {
-  return Math.random().toString(36).substr(2, length);
-}
-
 const buttonTheme = {
   roundness: 15,
 };
@@ -100,6 +96,7 @@ export default function ItemsScreen() {
   const db = database;
   const { items } = useLocalSearchParams<{ items: string[] }>();
   const priceId = items[1];
+  const billType = items[0];
 
   useEffect(() => {
     navigation.setOptions({
@@ -112,7 +109,7 @@ export default function ItemsScreen() {
   }, [navigation, itemsData]);
 
   useEffect(() => {
-    db.readOnce(`price-items/${priceId}`).then((snapshot) => {
+    db.readOnce(`${billType}-items/${priceId}`).then((snapshot) => {
       if (snapshot.exists()) {
         const databaseItems: ItemProps[] = [];
         Object.values(snapshot.val()).forEach((item) =>
@@ -139,7 +136,7 @@ export default function ItemsScreen() {
       setItemsData([...itemsData]);
       setDeleteVisible(false);
     } else {
-      db.deleteData(`price-items/${priceId}/${itemsData[indexRef.current].id}`)
+      db.deleteData(`${billType}-items/${priceId}/${itemsData[indexRef.current].id}`)
         .then(() => {
           itemsData.splice(indexRef.current, 1);
           setItemsData([...itemsData]);
@@ -180,13 +177,13 @@ export default function ItemsScreen() {
       try {
         // new item, create it on database
         if (item.id === "") {
-          const dbRef = db.getNewRef(`price-items/${priceId}`);
+          const dbRef = db.getNewRef(`${billType}-items/${priceId}`);
           item.id = dbRef.key;
           await db.pushData(dbRef, { ...item });
         }
         // Update the current item
         else {
-          const path = `price-items/${priceId}/${item.id}`;
+          const path = `${billType}-items/${priceId}/${item.id}`;
           await db.updateData(path, { ...item });
         }
       } catch (error) {

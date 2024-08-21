@@ -1,9 +1,9 @@
 import { Colors } from "@/constants/Colors";
 import { formatCurrency } from "@/utils/functions";
-import { Price } from "@/utils/types";
+import { Invoice } from "@/utils/types";
 import { Link, useRouter } from "expo-router";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { Card, Divider, Text } from "react-native-paper";
+import { Card, Chip, Divider, Text } from "react-native-paper";
 
 const TextLine = ({
   textKey,
@@ -26,8 +26,9 @@ const TextLine = ({
   );
 };
 
-export type ListItemProps = Price & {
+export type ListItemProps = Invoice & {
   colorScheme?: "light" | "dark";
+  isInvoice?: boolean;
 };
 
 export default function ListItem({
@@ -37,11 +38,17 @@ export default function ListItem({
   date,
   total,
   colorScheme,
+  status,
+  isInvoice = false,
 }: ListItemProps) {
   const colorTheme = colorScheme ?? "light";
   const router = useRouter();
+  const isPaid = status === "paid";
   return (
-    <Card style={styles.cardContainer} onPress={() => router.navigate(`/price/${id}`)}>
+    <Card
+      style={styles.cardContainer}
+      onPress={() => router.navigate(`/price/${id}`)}
+    >
       <Card.Title title={`#${orderId}`} titleVariant="titleMedium" />
       <Card.Content>
         <TextLine
@@ -57,6 +64,20 @@ export default function ListItem({
         <Divider style={styles.divider} />
         <Text variant="titleSmall">{formatCurrency(total)}</Text>
       </Card.Content>
+      {isInvoice && (
+        <Card.Actions>
+          <Chip
+            elevated
+            style={{
+              backgroundColor: isPaid
+                ? Colors[colorTheme].primary
+                : Colors[colorTheme].error,
+            }}
+          >
+            {isPaid ? "Concretada" : "Pendiente"}
+          </Chip>
+        </Card.Actions>
+      )}
     </Card>
   );
 }

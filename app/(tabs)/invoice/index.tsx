@@ -1,27 +1,17 @@
-import ListItem from "@/components/ListItem";
 import { ThemedView } from "@/components/ThemedView";
 import { database } from "@/firebase/database";
 import { Invoice } from "@/utils/types";
-import { HeaderButtonProps } from "@react-navigation/native-stack/src/types";
 import { Link, useNavigation } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import {
-  Dimensions,
-  StyleSheet,
-  TextInput,
-  useColorScheme,
-} from "react-native";
-import { FlatList } from "react-native";
+import { HeaderButtonProps } from "@react-navigation/native-stack/src/types";
+import { Dimensions, FlatList, TextInput, useColorScheme, StyleSheet } from "react-native";
 import { FAB, IconButton } from "react-native-paper";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import ListItem from "@/components/ListItem";
 
 const windowDimensions = Dimensions.get("window");
 
-export default function ListPriceScreen() {
+export default function InvoiceListScreen() {
   const db = database;
   const navigation = useNavigation();
   const [search, onChangeSearch] = useState("");
@@ -54,7 +44,7 @@ export default function ListPriceScreen() {
   }, [navigation, isExpanded]);
 
   useEffect(() => {
-    const readReference = db.read("price", (snapshot) => {
+    const readReference = db.read("invoice", (snapshot) => {
       if (snapshot.exists()) {
         const data: Invoice[] = [];
         snapshot.forEach((child) => {
@@ -65,7 +55,7 @@ export default function ListPriceScreen() {
     });
 
     return () => {
-      db.stopRead("price", readReference);
+      db.stopRead("invoice", readReference);
     };
   }, []);
 
@@ -95,10 +85,10 @@ export default function ListPriceScreen() {
       )}
       <FlatList
         data={filteredPrices}
-        renderItem={({ item }) => <ListItem {...item} colorScheme={theme} />}
+        renderItem={({ item }) => <ListItem {...item} colorScheme={theme} isInvoice={true} />}
         keyExtractor={(item) => item.id}
       />
-      <Link asChild href="/price/new">
+      <Link asChild href="/invoice/new">
         <FAB icon={"plus"} style={styles.fabAdd} size="medium" />
       </Link>
     </ThemedView>

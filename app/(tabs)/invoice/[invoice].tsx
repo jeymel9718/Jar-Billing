@@ -50,7 +50,7 @@ function amountReducer<T extends keyof Invoice>(
   }
 }
 
-export default function PriceScreen() {
+export default function InvoiceScreen() {
   const [date, setDate] = useState(new Date());
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ export default function PriceScreen() {
   const [discountVisible, setDiscountVisible] = useState(false);
   const [error, setError] = useState<string>("");
   const theme = useColorScheme() ?? "light";
-  const { price } = useLocalSearchParams<{ price: string }>();
+  const { invoice } = useLocalSearchParams<{ invoice: string }>();
   const router = useRouter();
   const navigation = useNavigation();
   const db = database;
@@ -133,13 +133,13 @@ export default function PriceScreen() {
   }, [navigation, state, unsaved, total, date]);
 
   useDiscardChanges(navigation, unsaved, state.id, {
-    type: "price",
-    key: price,
+    type: "invoice",
+    key: invoice,
   });
 
-  const priceRef = useBill(dispatch, price, setDate, "price");
+  const priceRef = useBill(dispatch, invoice, setDate, "invoice");
 
-  const itemsData = useBillItems(dispatch, "price", state.id);
+  const itemsData = useBillItems(dispatch, "invoice", state.id);
 
   const dismissDialog = () => {
     setError("");
@@ -175,7 +175,7 @@ export default function PriceScreen() {
   const savePrice = () => {
     setLoading(true);
     setVisible(true);
-    if (price === "new") {
+    if (invoice === "new") {
       db.pushData(priceRef, {
         ...state,
         date: date.toDateString(),
@@ -192,7 +192,7 @@ export default function PriceScreen() {
         });
       db.incrementPrices();
     } else {
-      db.updateData(`price/${price}`, {
+      db.updateData(`invoice/${invoice}`, {
         ...state,
         date: date.toDateString(),
         total: total.toString(),
@@ -209,7 +209,7 @@ export default function PriceScreen() {
   };
 
   const previewPrice = () => {
-    router.navigate(`/price/preview/${price}`);
+    router.navigate(`/price/preview/${invoice}`);
   };
 
   return (
@@ -283,7 +283,7 @@ export default function PriceScreen() {
       <Text variant="titleLarge" style={[styles.sectionText, { marginTop: 7 }]}>
         Detalles de los servicios
       </Text>
-      <BillItems items={itemsData} billKey="price" id={state.id} />
+      <BillItems items={itemsData} billKey="invoice" id={state.id} />
       <BillTotal
         total={total}
         subTotal={state.subTotal}

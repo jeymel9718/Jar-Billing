@@ -1,7 +1,7 @@
 import { ThemedView } from "@/components/ThemedView";
 import { database } from "@/firebase/database";
 import { generateHtml } from "@/utils/functions";
-import { ItemProps, Price } from "@/utils/types";
+import { ItemProps, Invoice } from "@/utils/types";
 import { printToFileAsync } from "expo-print";
 import { useLocalSearchParams } from "expo-router";
 import { shareAsync } from "expo-sharing";
@@ -14,7 +14,7 @@ const windowDimensions = Dimensions.get("window");
 
 export default function PreviewPriceScreen() {
   const { price } = useLocalSearchParams<{ price: string }>();
-  const [currentPrice, setCurrentPrice] = useState<Price>({
+  const [currentPrice, setCurrentPrice] = useState<Invoice>({
     id: "",
     name: "",
     number: "",
@@ -34,7 +34,7 @@ export default function PreviewPriceScreen() {
     db.readOnce(`price/${price}`)
       .then((snapshot) => {
         if (snapshot.exists()) {
-          setCurrentPrice(snapshot.val() as Price);
+          setCurrentPrice(snapshot.val() as Invoice);
         }
       })
       .catch((error) => {
