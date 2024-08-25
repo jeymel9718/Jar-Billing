@@ -1,7 +1,7 @@
 import { ThemedView } from "@/components/ThemedView";
 import { database } from "@/firebase/database";
 import { Invoice } from "@/utils/types";
-import { Link, useNavigation } from "expo-router";
+import { Link, useNavigation, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { HeaderButtonProps } from "@react-navigation/native-stack/src/types";
 import { Dimensions, FlatList, TextInput, useColorScheme, StyleSheet } from "react-native";
@@ -14,6 +14,7 @@ const windowDimensions = Dimensions.get("window");
 export default function InvoiceListScreen() {
   const db = database;
   const navigation = useNavigation();
+  const router = useRouter();
   const [search, onChangeSearch] = useState("");
   const [prices, setPrices] = useState<Invoice[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -85,10 +86,10 @@ export default function InvoiceListScreen() {
       )}
       <FlatList
         data={filteredPrices}
-        renderItem={({ item }) => <ListItem {...item} colorScheme={theme} isInvoice={true} />}
+        renderItem={({ item }) => <ListItem {...item} colorScheme={theme} isInvoice={true} onPress={() => router.navigate(`/invoice/${item.id}`)} />}
         keyExtractor={(item) => item.id}
       />
-      <Link asChild href="/invoice/new">
+      <Link asChild href="/invoice/new-invoice">
         <FAB icon={"plus"} style={styles.fabAdd} size="medium" />
       </Link>
     </ThemedView>

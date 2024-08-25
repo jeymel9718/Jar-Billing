@@ -4,7 +4,6 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import "@/global.css";
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -19,6 +18,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,7 +33,7 @@ const light = {
       level2: "rgb(237, 241, 226)",
       level3: "rgb(231, 237, 218)",
       level4: "rgb(229, 236, 216)",
-      level5: "rgb(225, 233, 211)"
+      level5: "rgb(225, 233, 211)",
     },
   },
 };
@@ -47,7 +47,7 @@ const dark = {
       level2: "rgb(36, 43, 31)",
       level3: "rgb(40, 49, 33)",
       level4: "rgb(42, 50, 34)",
-      level5: "rgb(44, 54, 35)"
+      level5: "rgb(44, 54, 35)",
     },
   },
 };
@@ -76,15 +76,13 @@ export default function RootLayout() {
   }
 
   return (
-    <GluestackUIProvider mode="light">
-      <PaperProvider theme={colorScheme === "dark" ? dark : light}>
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : LightTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-        </ThemeProvider>
-      </PaperProvider>
-    </GluestackUIProvider>
+    <PaperProvider theme={colorScheme === "dark" ? dark : light}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : LightTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </ThemeProvider>
+    </PaperProvider>
   );
 }

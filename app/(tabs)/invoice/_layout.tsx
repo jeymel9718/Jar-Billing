@@ -12,6 +12,12 @@ export default function InvoiceLayout() {
     >
       <Stack.Screen name="index" options={{ title: "Facturas" }} />
       <Stack.Screen name="[invoice]" />
+      <Stack.Screen
+        name="[...items]"
+        options={{ title: "Lista de servicios", presentation: "modal" }}
+      />
+      <Stack.Screen name="new-invoice" options={{ headerTransparent: true, title: 'Nueva Factura', headerStyle: {backgroundColor: 'transparent' }}}/>
+      <Stack.Screen name="preview/[invoice]" options={{ title: "Factura" }} />
     </Stack>
   );
 }

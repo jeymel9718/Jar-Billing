@@ -89,6 +89,15 @@ export class WebDatabase {
   }
 
   /**
+   * Obtain the reference for a givin path
+   * @param path Database path
+   * @returns The reference of the path
+   */
+  getRef(path: string) {
+    return ref(this.database, path);
+  }
+
+  /**
    * Push a new entry to the database.
    * @param reference database reference to push data.
    * @param data data to push.
@@ -118,9 +127,9 @@ export class WebDatabase {
     return update(ref(this.database), updates);
   }
 
-  incrementBills() {
+  incrementInvoices() {
     const updates: any = {
-      "counters/bills": increment(1),
+      "counters/invoices": increment(1),
     };
     return update(ref(this.database), updates);
   }

@@ -1,11 +1,10 @@
 import { Colors } from "@/constants/Colors";
 import { formatCurrency } from "@/utils/functions";
 import { Invoice } from "@/utils/types";
-import { Link, useRouter } from "expo-router";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { Card, Chip, Divider, Text } from "react-native-paper";
 
-const TextLine = ({
+export const TextLine = ({
   textKey,
   value,
   style,
@@ -27,6 +26,8 @@ const TextLine = ({
 };
 
 export type ListItemProps = Invoice & {
+  onPress: () => void;
+  style?: StyleProp<ViewStyle>;
   colorScheme?: "light" | "dark";
   isInvoice?: boolean;
 };
@@ -39,15 +40,16 @@ export default function ListItem({
   total,
   colorScheme,
   status,
+  onPress,
+  style,
   isInvoice = false,
 }: ListItemProps) {
   const colorTheme = colorScheme ?? "light";
-  const router = useRouter();
   const isPaid = status === "paid";
   return (
     <Card
-      style={styles.cardContainer}
-      onPress={() => router.navigate(`/price/${id}`)}
+      style={[styles.cardContainer, style]}
+      onPress={onPress}
     >
       <Card.Title title={`#${orderId}`} titleVariant="titleMedium" />
       <Card.Content>

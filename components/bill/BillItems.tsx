@@ -44,7 +44,7 @@ export function BillItems({ items, id, billKey }: BillItemsProps) {
       <Chip
         icon="plus"
         compact
-        onPress={() => router.navigate(`/${billKey}/${id}`)}
+        onPress={() => router.navigate(`/${billKey}/${billKey}/${id}`)}
         style={styles.addItem}
       >
         Añadir servicio

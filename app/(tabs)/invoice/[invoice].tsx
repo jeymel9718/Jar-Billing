@@ -190,7 +190,7 @@ export default function InvoiceScreen() {
           setError("Hubo un error al guardar la cotización");
           setLoading(false);
         });
-      db.incrementPrices();
+      db.incrementInvoices();
     } else {
       db.updateData(`invoice/${invoice}`, {
         ...state,
@@ -209,7 +209,7 @@ export default function InvoiceScreen() {
   };
 
   const previewPrice = () => {
-    router.navigate(`/price/preview/${invoice}`);
+    router.navigate(`/invoice/preview/${invoice}`);
   };
 
   return (
