@@ -18,3 +18,9 @@ export type Invoice = {
   orderId: string;
   status?: 'pending' | 'paid';
 };
+
+export type Event = {
+  id: string;
+  name: string;
+  date: Date;
+}

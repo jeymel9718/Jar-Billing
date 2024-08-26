@@ -8,6 +8,7 @@ type HeaderMenuProps = {
   onSave: () => void;
   onShare: () => void;
   onPreview: () => void;
+  onPaid?: () => void;
 };
 
 export default function HeaderMenu({
@@ -15,6 +16,7 @@ export default function HeaderMenu({
   onSave,
   onShare,
   onPreview,
+  onPaid,
 }: HeaderMenuProps) {
   const [showMenu, setShowMenu] = useState(false);
   return (
@@ -43,6 +45,13 @@ export default function HeaderMenu({
           title="Enviar"
           onPress={onShare}
         />
+        {onPaid && (
+          <Menu.Item
+            leadingIcon="checkbox-marked"
+            title="Marcar como pagada"
+            onPress={onPaid}
+          />
+        )}
       </Menu>
     </View>
   );

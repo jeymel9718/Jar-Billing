@@ -43,6 +43,7 @@ export function ClientDetails({
         <TextInput
           mode="outlined"
           label="Número de teléfono"
+          keyboardType="numeric"
           theme={inputTheme}
           style={styles.button}
           value={clientNumber}

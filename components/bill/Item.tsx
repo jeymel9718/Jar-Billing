@@ -41,12 +41,14 @@ export function Item({
         style={styles.costInput}
         theme={buttonTheme}
         value={item.price}
+        keyboardType="numeric"
         onPressIn={() => scrollCallback(index)}
         onChangeText={(text) => onPriceChange(index, text)}
       />
       <TextInput
         label="Costo"
         style={styles.costInput}
+        keyboardType="numeric"
         theme={buttonTheme}
         value={item.cost}
         onPressIn={() => scrollCallback(index)}

@@ -13,14 +13,15 @@ import {
   Dialog,
   Portal,
   RadioButton,
+  Snackbar,
   Text,
   TextInput,
 } from "react-native-paper";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { useState, useEffect, useMemo, useReducer, useRef } from "react";
+import { useState, useEffect, useMemo, useReducer, useRef, useCallback } from "react";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { ItemProps, Invoice } from "@/utils/types";
-import { formatCurrency, validateEmail } from "@/utils/functions";
+import { formatCurrency, generateHtml, validateEmail } from "@/utils/functions";
 import { database } from "@/firebase/database";
 import HeaderMenu from "@/components/HeaderMenu";
 import { useDiscardChanges } from "@/hooks/useDiscardChanges";
@@ -29,6 +30,8 @@ import { useBillItems } from "@/hooks/useBillItems";
 import { ClientDetails } from "@/components/bill/ClientDetails";
 import { BillItems } from "@/components/bill/BillItems";
 import { BillTotal } from "@/components/bill/BillTotal";
+import { printToFileAsync } from "expo-print";
+import { shareAsync } from "expo-sharing";
 
 const windowDimensions = Dimensions.get("window");
 
@@ -55,6 +58,7 @@ export default function InvoiceScreen() {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
+  const [snackVisible, setSnackVisible] = useState(false);
   const [discountVisible, setDiscountVisible] = useState(false);
   const [error, setError] = useState<string>("");
   const theme = useColorScheme() ?? "light";
@@ -73,6 +77,7 @@ export default function InvoiceScreen() {
     name: "",
     date: "",
     orderId: "",
+    status: "pending"
   });
 
   const formattedDate = useMemo(() => {
@@ -117,20 +122,6 @@ export default function InvoiceScreen() {
       is24Hour: true,
     });
   };
-
-  useEffect(() => {
-    navigation.setOptions({
-      title: state.orderId,
-      headerRight: (props: HeaderButtonProps) => (
-        <HeaderMenu
-          headerProps={props}
-          onSave={savePrice}
-          onPreview={previewPrice}
-          onShare={() => {}}
-        />
-      ),
-    });
-  }, [navigation, state, unsaved, total, date]);
 
   useDiscardChanges(navigation, unsaved, state.id, {
     type: "invoice",
@@ -208,9 +199,40 @@ export default function InvoiceScreen() {
     }
   };
 
+  const shareInvoice = useCallback(async () => {
+    setSnackVisible(true);
+    const html = generateHtml(state, itemsData);
+    const { uri } = await printToFileAsync({ html });
+    await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+    setSnackVisible(false);
+  }, [itemsData, state]);
+
   const previewPrice = () => {
     router.navigate(`/invoice/preview/${invoice}`);
   };
+
+  const markAsPaid = () => {
+    db.updateData(`invoice/${invoice}`, {
+      ...state,
+      date: date.toDateString(),
+      status: "paid"
+    });
+  };
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: state.orderId,
+      headerRight: (props: HeaderButtonProps) => (
+        <HeaderMenu
+          headerProps={props}
+          onSave={savePrice}
+          onPreview={previewPrice}
+          onShare={shareInvoice}
+          onPaid={markAsPaid}
+        />
+      ),
+    });
+  }, [navigation, state, unsaved, total, date, shareInvoice]);
 
   return (
     <ScrollView
@@ -266,6 +288,7 @@ export default function InvoiceScreen() {
             <Button onPress={() => setDiscountVisible(false)}>Aceptar</Button>
           </Dialog.Actions>
         </Dialog>
+        <Snackbar visible={snackVisible} onDismiss={() => {}}>Generando Factura...</Snackbar>
       </Portal>
       <Text variant="titleLarge" style={styles.sectionText}>
         Detalles del cliente

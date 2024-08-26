@@ -47,10 +47,7 @@ export default function ListItem({
   const colorTheme = colorScheme ?? "light";
   const isPaid = status === "paid";
   return (
-    <Card
-      style={[styles.cardContainer, style]}
-      onPress={onPress}
-    >
+    <Card style={[styles.cardContainer, style]} onPress={onPress}>
       <Card.Title title={`#${orderId}`} titleVariant="titleMedium" />
       <Card.Content>
         <TextLine
@@ -74,6 +71,11 @@ export default function ListItem({
               backgroundColor: isPaid
                 ? Colors[colorTheme].primary
                 : Colors[colorTheme].error,
+            }}
+            textStyle={{
+              color: isPaid
+                ? Colors[colorTheme].onPrimary
+                : Colors[colorTheme].onError,
             }}
           >
             {isPaid ? "Concretada" : "Pendiente"}
