@@ -1,4 +1,10 @@
-import { Image, StyleSheet, Platform, Dimensions } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Platform,
+  Dimensions,
+  Pressable,
+} from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -6,6 +12,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
 import { Text, Surface } from "react-native-paper";
+import { Link } from "expo-router";
 
 const windowDimensions = Dimensions.get("window");
 
@@ -26,14 +33,22 @@ export default function HomeScreen() {
       </ThemedView>
       <ThemedView style={styles.container}>
         <ThemedView style={styles.rowContainer}>
-          <Surface style={styles.boxContainer} elevation={4}>
-            <Ionicons size={30} name="reader" />
-            <Text>Agregar nueva cotización</Text>
-          </Surface>
-          <Surface style={styles.boxContainer} elevation={4}>
-            <Ionicons size={30} name="receipt" />
-            <Text>Agregar nueva factura</Text>
-          </Surface>
+          <Link asChild href="/price/new">
+            <Pressable>
+              <Surface style={styles.boxContainer} elevation={4}>
+                <Ionicons size={30} name="reader" />
+                <Text>Agregar nueva cotización</Text>
+              </Surface>
+            </Pressable>
+          </Link>
+          <Link asChild href="/invoice/new-invoice">
+            <Pressable>
+              <Surface style={styles.boxContainer} elevation={4}>
+                <Ionicons size={30} name="receipt" />
+                <Text>Agregar nueva factura</Text>
+              </Surface>
+            </Pressable>
+          </Link>
         </ThemedView>
       </ThemedView>
     </ParallaxScrollView>
@@ -47,15 +62,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   container: {
-    flex: 1
+    flex: 1,
   },
   stepContainer: {
     gap: 8,
     marginBottom: 8,
   },
   reactLogo: {
-    height: '100%',
-    width: '100%',
+    height: "100%",
+    width: "100%",
     bottom: 0,
     left: 0,
     position: "absolute",
@@ -63,12 +78,12 @@ const styles = StyleSheet.create({
   rowContainer: {
     flex: 1,
     flexDirection: "row",
-    alignContent: 'space-around',
-    justifyContent: 'space-around'
+    alignContent: "space-around",
+    justifyContent: "space-around",
   },
   boxContainer: {
-    height: windowDimensions.height*0.12,
-    width: windowDimensions.width*0.34,
+    height: windowDimensions.height * 0.12,
+    width: windowDimensions.width * 0.34,
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",

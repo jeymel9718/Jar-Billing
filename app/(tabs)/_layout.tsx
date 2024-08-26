@@ -33,7 +33,7 @@ export default function TabLayout() {
           title: "Calendario",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
+              name={focused ? "calendar" : "calendar-outline"}
               color={color}
             />
           ),

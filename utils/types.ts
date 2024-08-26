@@ -23,4 +23,5 @@ export type Event = {
   id: string;
   name: string;
   date: Date;
+  duration: number
 }
