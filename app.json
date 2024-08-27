@@ -4,8 +4,8 @@
     "slug": "jar-billing",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "icon": "./assets/images/jar.jpeg",
+    "scheme": "jarbilling",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -18,10 +18,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/jar-adaptive.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.jeymel9718.jarbilling"
+      "package": "com.jeymel9718.jarbilling",
+      "permissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +43,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "748be5d5-9d85-41bc-8628-243010a71411"
+      }
     }
   }
 }
