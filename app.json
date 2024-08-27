@@ -4,7 +4,7 @@
     "slug": "jar-billing",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/jar.jpeg",
+    "icon": "./assets/images/jar.png",
     "scheme": "jarbilling",
     "userInterfaceStyle": "automatic",
     "splash": {
