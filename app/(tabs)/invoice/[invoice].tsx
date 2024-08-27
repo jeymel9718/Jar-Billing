@@ -80,14 +80,6 @@ export default function InvoiceScreen() {
     status: "pending"
   });
 
-  const formattedDate = useMemo(() => {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // Months are zero-based, so add 1
-    const day = date.getDate();
-    const formattedDate = `${day.toString().padStart(2, "0")}/${month.toString().padStart(2, "0")}/${year}`;
-    return formattedDate;
-  }, [date]);
-
   const onChange = (event: any, selectedDate: any) => {
     setUnsaved(true);
     const currentDate = selectedDate;
@@ -169,7 +161,7 @@ export default function InvoiceScreen() {
     if (invoice === "new") {
       db.pushData(priceRef, {
         ...state,
-        date: date.toDateString(),
+        date: date.toLocaleDateString(),
         total: total.toString(),
       })
         .then(() => {
@@ -185,7 +177,7 @@ export default function InvoiceScreen() {
     } else {
       db.updateData(`invoice/${invoice}`, {
         ...state,
-        date: date.toDateString(),
+        date: date.toLocaleDateString(),
         total: total.toString(),
       })
         .then(() => {
@@ -214,7 +206,7 @@ export default function InvoiceScreen() {
   const markAsPaid = () => {
     db.updateData(`invoice/${invoice}`, {
       ...state,
-      date: date.toDateString(),
+      date: date.toLocaleDateString(),
       status: "paid"
     });
   };
@@ -297,7 +289,7 @@ export default function InvoiceScreen() {
         clientName={state.name}
         clientNumber={state.number}
         clientEmail={state.email}
-        date={formattedDate}
+        date={date.toLocaleDateString()}
         onClientNameChange={handleNameChange}
         onClientNumberChange={handleNumberChange}
         onClientEmailChange={handleEmailChange}

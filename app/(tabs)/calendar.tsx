@@ -9,9 +9,9 @@ import {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { ThemedView } from "@/components/ThemedView";
+import { useEvents } from "@/hooks/useEvents";
 
 export default function CalendarScreen() {
-  const [events, setEvents] = useState<Event[]>([]);
   const [newEvent, setNewEvent] = useState("");
   const [date, setDate] = useState<Date>(new Date());
   const [duration, setDuration] = useState("1");
@@ -50,34 +50,7 @@ export default function CalendarScreen() {
     });
   };
 
-  const formattedDate = useMemo(() => {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // Months are zero-based, so add 1
-    const day = date.getDate();
-    const formattedDate = `${day.toString().padStart(2, "0")}/${month.toString().padStart(2, "0")}/${year}`;
-    return formattedDate;
-  }, [date]);
-
-  useEffect(() => {
-    // Sync with Firebase
-    const unsubscribe = database.read("planner/events", (snapshot) => {
-      if (snapshot.exists()) {
-        const data: Event[] = [];
-        snapshot.forEach((child) => {
-          const childData = child.val();
-          data.push({
-            id: childData.id,
-            name: childData.name,
-            date: new Date(childData.date),
-            duration: childData.duration
-          });
-        });
-        setEvents(data);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const events = useEvents();
 
   useEffect(() => {
     // Request Calendar permissions
@@ -112,7 +85,7 @@ export default function CalendarScreen() {
     await database.pushData(newEventRef, {
       id: event.id,
       name: event.name,
-      date: event.date.toDateString(),
+      date: event.date.toLocaleString(),
       duration: event.duration
     });
   };
@@ -133,7 +106,7 @@ export default function CalendarScreen() {
         alarms: [{absoluteDate: previousDay.toString(), relativeOffset: -15}],
         title: event.name,
         startDate: event.date,
-        endDate: endDate, // 1 hour duration
+        endDate: endDate,
         timeZone: "GMT-6",
       });
     }
@@ -163,7 +136,7 @@ export default function CalendarScreen() {
         onChangeText={setNewEvent}
       />
       <View style={styles.buttonContainers}>
-        <Button onPress={showDatePicker}>{formattedDate}</Button>
+        <Button onPress={showDatePicker}>{date.toLocaleDateString()}</Button>
         <Button onPress={showTimePicker}>
           {date.getHours()}:{date.getMinutes()}
         </Button>

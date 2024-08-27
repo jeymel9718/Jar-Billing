@@ -7,6 +7,11 @@ import {
 import { useColorScheme } from "react-native";
 import { IconButton } from "react-native-paper";
 
+export const unstable_settings = {
+  // Ensure any route can link back to `/`
+  initialRouteName: 'index',
+};
+
 export default function PriceLayout() {
   const theme = useColorScheme() ?? "light";
   return (
@@ -14,6 +19,7 @@ export default function PriceLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: Colors[theme].primaryContainer },
       }}
+      initialRouteName="index"
     >
       <Stack.Screen name="index" options={{ title: "Cotizaciones" }} />
       <Stack.Screen name="[price]" />

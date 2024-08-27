@@ -1,4 +1,4 @@
-import { ItemProps, Invoice } from "./types";
+import { ItemProps, Invoice, Event } from "./types";
 
 export function formatCurrency(
   value: string | number,
@@ -33,6 +33,21 @@ export function validateEmail(email: string): boolean {
   // Regular expression to validate email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
+}
+
+export function sortEvents(events: Event[]): Event[] {
+	const currentDate = new Date();
+	return events.sort((a, b) => {
+		const aDate = a.date;
+		const bDate = b.date;
+		
+		// Expired events go to the bottom
+		if (aDate < currentDate && bDate >= currentDate) return 1;
+		if (aDate >= currentDate && bDate < currentDate) return -1;
+		
+		// Otherwise, order by date, closest to current date on top
+		return aDate.getTime() - bDate.getTime();
+	  });
 }
 
 const getPercentageMount = (subTotal: string, discount: string) => {

@@ -2,6 +2,11 @@ import { Colors } from "@/constants/Colors";
 import { Stack } from "expo-router";
 import { useColorScheme } from "react-native";
 
+export const unstable_settings = {
+  // Ensure any route can link back to `/`
+  initialRouteName: 'index',
+};
+
 export default function InvoiceLayout() {
   const theme = useColorScheme() ?? "light";
   return (
@@ -9,6 +14,7 @@ export default function InvoiceLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: Colors[theme].primaryContainer },
       }}
+      initialRouteName="index"
     >
       <Stack.Screen name="index" options={{ title: "Facturas" }} />
       <Stack.Screen name="[invoice]" />
